@@ -8,12 +8,24 @@ from app.udaconnect.schemas import (
 from app.udaconnect.services import ConnectionService, PersonService
 from flask import request
 from flask_accepts import accepts, responds
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, fields
 from typing import Optional, List
 
 DATE_FORMAT = "%Y-%m-%d"
 
 api = Namespace("UdaConnect", description="Connections via geolocation.")  # noqa
+
+# Define API model directly from the DB model fields
+person_model = api.model(
+    "Person",
+    {
+        "id": fields.Integer(readOnly=True, description="Person ID"),
+        "first_name": fields.String(required=True, description="First name"),
+        "last_name": fields.String(required=True, description="Last name"),
+        "company_name": fields.String(required=True, description="Company name"),
+    },
+)
+
 
 
 # TODO: This needs better exception handling
@@ -22,6 +34,7 @@ api = Namespace("UdaConnect", description="Connections via geolocation.")  # noq
 class PersonsResource(Resource):
     @accepts(schema=PersonSchema)
     @responds(schema=PersonSchema)
+    @api.expect(person_model)  # Ensure Swagger UI expects the model
     def post(self) -> Person:
         payload = request.get_json()
         new_person: Person = PersonService.create(payload)

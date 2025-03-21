@@ -5,7 +5,8 @@ x-env-vars: &env_vars
   DB_HOST: host.docker.internal
   DB_PORT: 5432
   KAFKA_SERVER: kafka:9092
-  PERSON_HOST: http://mb-cd0309-message-passing-projects-starter-api-person-1:5001/api/persons
+  PERSON_HOST: http://localhost:5001/api/persons #http://modules-api-person-1:5001/api/persons
+  LOCATION_HOST: http://localhost:5002/api/locations #http://modules-api-locations-1:5002/api/locations
 
 networks:
   udaconnect_network:
@@ -54,6 +55,17 @@ services:
       <<: *env_vars
     networks:
       - udaconnect_network
+  
+  api-person:
+    build:
+      context: ./api-person
+    ports:
+      - "5001:5001"
+    environment:
+      <<: *env_vars
+    networks:
+      - udaconnect_network
+  
 
 
 

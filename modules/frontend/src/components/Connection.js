@@ -21,6 +21,8 @@ class Connection extends Component {
   getConnections = (personId) => {
     if (personId) {
       // TODO: endpoint should be abstracted into a config variable
+      const apiUrl = `${process.env.LOCATION_HOST}/${personId}/connection?start_date=2020-01-01&end_date=2050-12-30&distance=5`;
+      console.log("LOCATION_HOST URL:", apiUrl); // Zeigt die URL in der Konsole an
       fetch(
         `http://localhost:5002/api/locations/${personId}/connection?start_date=2020-01-01&end_date=2050-12-30&distance=5`
       )

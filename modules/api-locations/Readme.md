@@ -8,6 +8,11 @@ select * from location where person_id=5 and creation_time >='2019-07-05 15:00:0
 ## VAGRANT
 vagrant status
 C:\Users\Coding4Kids\udacity-training\cd0309-message-passing-projects-starter>
+vagrant ssh
+sudo su
+kubectl get svc
+kubectl port-forward postgres  --address 0.0.0.0 5432:5432
+
 
 
 # Testing
@@ -22,6 +27,8 @@ docker run -p 5002:5002 -p 5005:5005 test
 
 POST REquest SAmple
 DEBUG:root:Received data: {'person_id': 10, 'longitude': '53.12864919788544', 'latitude': '8.166434884071895', 'creation_time': '2025-03-07T18:00:00'}
+DEBUG:udaconnect-srv:Received Kafka message: {'id': 6, 'latitude': '-118.2437', 'longitude': '34.0522', 'creation_time': '2023-10-01T14:30:00Z'}
+ {'id': 1, 'latitude': 1.0, 'longitude': 1.0, 'creation_time': '2025-03-17T14:30:00Z'}
 
 docker exec -it affectionate_johnson /bin/sh
 apk add --no-cache curl

@@ -17,7 +17,7 @@ class LocationService(location_pb2_grpc.LocationServiceServicer):
 
 
 
-
+    # Implement the CreateLocation RPC method
     def CreateLocation(self, request, context):
         location_data = request
         logging.debug(f"Location data received: {request}")
@@ -40,7 +40,7 @@ class LocationService(location_pb2_grpc.LocationServiceServicer):
 
         
 
-
+    # Implement the GetLocation RPC method
     def GetLocation(self, request, context):
         # Retrieve the location by ID from the Kafka topic
         location = locations.get(request.id)
@@ -57,16 +57,15 @@ class LocationService(location_pb2_grpc.LocationServiceServicer):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             return location_pb2.Location()
 
+    # Implement the GetAllLocations RPC method
     def GetAllLocations(self, request, context):
             # Retrieve all locations (returning them as a list)
             all_locations = list(locations.values())
             return location_pb2.GetAllLocationsResponse(locations=[location_pb2.Location(
                 id=loc['id'], latitude=loc['latitude'], longitude=loc['longitude'], name=loc['name']) for loc in all_locations])
 
- 
 
 def serve():
-
 
     # Start the gRPC server
     logging.debug("Starting gRPC server on port 5005...")
@@ -99,6 +98,11 @@ def serve():
             time.sleep(86400)  # Keep the server running
     except KeyboardInterrupt:
         server.stop(0)
+
+
+
+ 
+
 
 
 if __name__ == '__main__':

@@ -5,12 +5,20 @@ from kafka.errors import KafkaError, NoBrokersAvailable
 import json
 import logging
 import time
+from flask import current_app
+from typing import Optional
+import traceback
 from app.udaconnect.services import ConnectionService, LocationService
-
+from app.udaconnect.models import Location
+#from flask import Flask, current_app
+from app import create_app 
 
 # Get Kafka server from environment (set by Docker Compose)
 KAFKA_SERVER = os.getenv('KAFKA_SERVER', 'localhost:9092')
-TOPIC_NAME = 'location-topic'
+TOPIC_NAME = os.getenv('KAFKA_TOPIC', 'location-topic')
+
+
+
 
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('kafka').setLevel(logging.WARNING)
@@ -19,22 +27,29 @@ logger = logging.getLogger("udaconnect-srv")
 # Dictionary to temporarily store locations
 locations = {}
 
+def get_app():
+    from app import app
+    return app
 
-def is_kafka_readyold():
+
+
+def process_message(location_data: dict) -> Optional[Location]:
+
     try:
-        consumer = KafkaConsumer(
-            TOPIC_NAME,
-            bootstrap_servers=KAFKA_SERVER,
-            group_id='location-consumer-group',
-            auto_offset_reset='earliest',
-            value_deserializer=lambda m: json.loads(m.decode('utf-8'))
-        )
-        consumer.close()
-        logging.debug("Kafka connection successful.")
-        return True
-    except NoBrokersAvailable:
-        logging.debug("Kafka is not available yet. Retrying...")
-        return False
+        app = create_app()
+        with app.app_context():  # <-- Push app context here 
+            logger.info(f"Prepare DB Insert message: {location_data}")
+            location: Location = LocationService.create(location_data)
+
+            logger.info(f"Created location: {location}")
+            return location
+
+    except (KeyError, ValueError, TypeError) as e:
+        logger.error(f"Error creating location: {e}\n{traceback.format_exc()}")
+        return None
+
+  
+# Check if Kafka is ready by trying to connect to the broker
 def is_kafka_ready():
     try:
         # Try connecting to Kafka broker without specifying a topic
@@ -56,7 +71,7 @@ def is_kafka_ready():
         logging.warning(f"Kafka connection failed with error: {e}. Retrying...")
         return False
 
-
+# Create a Kafka producer to send location data
 def create_producer():
     check_or_create_topic()
     return KafkaProducer(
@@ -64,9 +79,7 @@ def create_producer():
         value_serializer=lambda v: json.dumps(v).encode('utf-8')  # Serialize messages as JSON
     )
 
-
-
-
+#   Create a Kafka consumer to read location data
 def create_consumer():
     return KafkaConsumer(
         TOPIC_NAME,
@@ -75,7 +88,7 @@ def create_consumer():
         auto_offset_reset='earliest',  # Read from the beginning if no offset
         value_deserializer=lambda m: json.loads(m.decode('utf-8'))  # Deserialize JSON value
     )
-
+# Send location data to Kafka
 def send_location_to_kafka(location_data):
     producer = create_producer()
     try:
@@ -85,78 +98,36 @@ def send_location_to_kafka(location_data):
     except BaseException as e:
         logging.error(f"Error producing message: {e}")
 
-# Function to consume a message from Kafka and store the location in the dictionary
-def consume_location_from_kafkaold():
-    consumer = create_consumer()
-    try:
-        while True:
-            msg = consumer.poll(timeout_ms=1000)  # Poll for new messages
-            if msg is None:
-                continue  # No message available
-            if msg is not None:
-                location_data = msg.value().decode('utf-8')
-                location = json.loads(location_data)
-                locations[location['id']] = location
-                print(f"Consumed location: {location}")
-    finally:
-        consumer.close()
-
-
-
+'''
 # Simulate creating a new location from the Kafka message
-def process_message(location_data):
+def process_message(location_data: dict) -> Optional[Location]:
     try:
-        # Simulate creating a new Location in the database
-        location = LocationService.create(location_data)
+        logger.info(f"Perpare DB Insert message: {location_data}")
+        #location_json = location_data.get_json(location_data)
+        location: Location = LocationService.create(location_data)
+
+        
+        location_obj = Location(
+            person_id=location_data.get('person_id'),
+            longitude=str(location_data.get('longitude')),
+            latitude=str(location_data.get('latitude')),
+            creation_time=location_data.get('creation_time'),
+        )
+       
+        location = LocationService.create(location_obj)
+        
+
         logger.info(f"Created location: {location}")
         return location
-    except Exception as e:
-        logger.error(f"Error creating location: {e}")
+
+    except (KeyError, ValueError, TypeError) as e:
+        logger.error(f"Error creating location: {e}\n{traceback.format_exc()}")
         return None
-
-# Function to consume a message from Kafka and store the location in the dictionary
-def consume_location_from_kafkaOLD():
-    consumer = create_consumer()  # Create a consumer
-    try:
-        while True:
-            # Poll for messages, timeout after 1 second
-            msg = consumer.poll(timeout_ms=1000)  
-            if msg is None:
-                continue  # No message available, keep polling
-            for _, messages in msg.items():
-                for message in messages:
-                    location = message.value  # Deserialize message
-                    # Store the location in the locations dictionary
-                    locations[location['id']] = location
-                    print(f"Consumed location: {location}")
-    finally:
-        consumer.close()  # Close the consumer when done
+'''
 
 
-def consume_location_from_kafkatmp():
-    consumer = create_consumer() 
-    # Start consuming messages from Kafka
-    for message in consumer:
-        try:
-            message_value = message.value
-            # Assuming message is already decoded and is a dict.
-            if isinstance(message, bytes):
-                message_value = json.loads(message.decode('utf-8'))  # Only decode if it's in bytes
-            
-            
-            logger.debug(f"Received Kafka message: {message_value}")
 
-            # Assuming the schema is validated and processed in LocationService.create
-            location = process_message(message_value)
-            
-            if location:
-                logger.info(f"Successfully processed message and created location: {location}")
-            else:
-                logger.error(f"Failed to process message: {location_data}")
-        
-        except Exception as e:
-            logger.error(f"Error processing Kafka message: {e}")
-
+# Consume location messages from Kafka
 def consume_location_from_kafka():
     consumer = create_consumer()
     logger.info("Kafka consumer started and waiting for messages...")
@@ -180,6 +151,59 @@ def consume_location_from_kafka():
         except Exception as e:
             logger.error(f"Error processing Kafka message: {e}")
 
+def consume_location_from_kafkafail():
+    consumer = create_consumer()
+    logger.info("Kafka consumer started and waiting for messages...")
+
+    # Ensure Flask app context is active
+    with current_app.app_context():
+        for message in consumer:
+            if not message.value:
+                logger.warning("Received empty message from Kafka")
+                continue
+
+            try:
+                message_value = message.value
+                logger.debug(f"Received Kafka message: {message_value}")
+
+                # Call the process_message function (now works!)
+                location = process_message(message_value)
+
+                if location:
+                    logger.info(f"Successfully processed message and created location: {location}")
+                else:
+                    logger.error(f"Failed to process message: {message_value}")
+
+            except Exception as e:
+                logger.error(f"Error processing Kafka message: {e}")
+
+
+
+def consume_location_from_kafkanew():
+    consumer = create_consumer()
+    logger.info("Kafka consumer started and waiting for messages...")
+
+    # Manuell den Flask-Kontext setzen
+    with current_app.app_context():
+        for message in consumer:
+            if not message.value:
+                logger.warning("Received empty message from Kafka")
+                continue
+
+            try:
+                message_value = message.value
+                logger.debug(f"Received Kafka message: {message_value}")
+
+                # Call the process_message function (now works!)
+                location = process_message(message_value)
+
+                if location:
+                    logger.info(f"Successfully processed message and created location: {location}")
+                else:
+                    logger.error(f"Failed to process message: {message_value}")
+
+            except Exception as e:
+                logger.error(f"Error processing Kafka message: {e}")
 
 
 # Create Kafka AdminClient to check or create topics

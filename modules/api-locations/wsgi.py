@@ -34,6 +34,8 @@ grpc_thread = threading.Thread(target=start_grpc_server)
 grpc_thread.daemon = True
 grpc_thread.start()
 
+
+
 app = create_app(os.getenv("FLASK_ENV") or "test")
 if __name__ == "__main__":
      app.run(debug=True)

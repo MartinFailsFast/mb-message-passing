@@ -8,7 +8,7 @@ from app.udaconnect.schemas import (
 from app.udaconnect.services import ConnectionService, LocationService
 from flask import request
 from flask_accepts import accepts, responds
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, fields
 from typing import Optional, List
 import logging
 
@@ -19,13 +19,38 @@ DATE_FORMAT = "%Y-%m-%d"
 api = Namespace("UdaConnect", description="Connections via geolocation.")  # noqa
 
 
+
 # Get the logger for this specific class/module
 # logger = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("udaconnect")
 
-# TODO: This needs better exception handling
+
+
+# Define API model to match LocationSchema
+location_model = api.model(
+    "Location",
+    {
+        "id": fields.Integer(readOnly=True, description="Location ID"),
+        "person_id": fields.Integer(required=True, description="Associated Person ID"),
+        "longitude": fields.String(required=True, description="Longitude coordinate"),
+        "latitude": fields.String(required=True, description="Latitude coordinate"),
+        "creation_time": fields.DateTime(
+            description="Time of location creation"
+        ),
+    },
+)
+
+@api.doc(
+    params={
+        "person_id": "ID of the person to filter locations",
+        "longitude": "Longitude coordinate",
+        "latitude": "Latitude coordinate",
+        "creation_time": "Timestamp in YYYY-MM-DD format"
+    }
+)
+
 
 @api.route("/locations")
 @api.route("/locations/<int:location_id>")
@@ -71,6 +96,7 @@ class LocationResource(Resource):
     # Create a new location
     @accepts(schema=LocationSchema)
     @responds(schema=LocationSchema)
+    @api.expect(location_model)  # Keep this for POST only
     def post(self) -> Location:
         location_data = request.get_json()
         logging.debug(f"Received data: {location_data}")

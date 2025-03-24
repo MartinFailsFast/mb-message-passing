@@ -24,25 +24,31 @@ services:
       - udaconnect_network
 
   kafka:
-    image: bitnami/kafka:latest
-    environment:
-      - KAFKA_BROKER_ID=1
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true  # Allow topic auto-creation
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "9092"]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 10s
-    networks:
-      - udaconnect_network
+      image: bitnami/kafka:latest
+      environment:
+        - KAFKA_BROKER_ID=1
+        - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+        - ALLOW_PLAINTEXT_LISTENER=yes
+        - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+        - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true  # Allow topic auto-creation
+        - KAFKA_CFG_PROCESS_ROLES=broker  # Set Kafka's process role
+        - KAFKA_CFG_NODE_ID=1  # Set the unique node ID
+        - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT  # Set listener security protocol map
+        - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL=PLAINTEXT  # Set listener security protocol
+        - KAFKA_CLUSTER_ID=mb-kafka-cluster
+        
+      depends_on:
+        - zookeeper
+      ports:
+        - "9092:9092"
+      healthcheck:
+        test: ["CMD", "nc", "-z", "localhost", "9092"]
+        interval: 10s
+        retries: 5
+        start_period: 30s
+        timeout: 10s
+      networks:
+        - udaconnect_network
   
   api-locations:
     build:

@@ -7,7 +7,6 @@ class Persons extends Component {
     // Endpoint via config variable
     this.endpoint_url = process.env.FRONTEND_PERSON_URL;
     console.log("Person_HOST URL:", this.endpoint_url); // Zeigt die URL in der Konsole an
-    //this.endpoint_url = "http://localhost:30001/api/persons"; 
     this.state = {
       persons: [],
       display: null,

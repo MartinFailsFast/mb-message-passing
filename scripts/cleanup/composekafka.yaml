@@ -1,0 +1,47 @@
+x-env-vars: &env_vars
+  DB_USERNAME: ct_admin
+  DB_PASSWORD: hotdogsfordinner
+  DB_NAME: geoconnections
+  DB_HOST: postgres #host.docker.internal
+  DB_PORT: 5432
+  KAFKA_SERVER: kafka:9092
+  PERSON_HOST: http://api-person:5001/api/persons #http://localhost:5001/api/persons #http://modules-api-person-1:5001/api/persons
+  LOCATION_HOST: http://api-locations:5002/api/locations #http://modules-api-locations-1:5002/api/locations
+
+networks:
+  udaconnect_network:
+    driver: bridge
+volumes:
+  kafka-data:
+
+version: '3.8'
+
+services:
+  kafka:
+    image: bitnami/kafka:latest
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CLUSTER_ID=my-cluster-id  # Set a unique cluster ID
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller  # Broker and controller roles
+      - KAFKA_CFG_NODE_ID=1  # Node ID
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092  # Configure the listener
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092  # Advertised listener address
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL=PLAINTEXT  # Plaintext communication
+      - KAFKA_KRAFT_MODE=true  # Enabling KRaft mode (removes the need for Zookeeper)
+      - KAFKA_CFG_LOG_DIRS=/bitnami/kafka/data  # Log directory
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=PLAINTEXT  # Define the controller listener
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9092  # Quorum voters (single node in this case)
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT  # Map the security protocol to the listener
+    volumes:
+      - /path/to/kafka/data:/bitnami/kafka/data  # Set the data directory
+    ports:
+      - "9092:9092"  # Expose Kafka port
+    networks:
+      - udaconnect_network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+

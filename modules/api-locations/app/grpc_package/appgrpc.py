@@ -83,7 +83,7 @@ def serve():
     # Wait for Kafka to be ready
     while not is_kafka_ready():
         logging.debug("Wait for Kafka to be ready...")
-        time.sleep(10)  # Wait for 5 seconds before retrying
+        time.sleep(20)  # Wait for 5 seconds before retrying
 
 
     # Consume messages from Kafka in a separate thread

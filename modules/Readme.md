@@ -80,32 +80,39 @@ Afterwards, you can test that `kubectl` works by running a command like `kubectl
 1. `kubectl apply -f deployment/db-configmap.yaml` - Set up environment variables for the pods
 2. `kubectl apply -f deployment/db-secret.yaml` - Set up secrets for the pods
 3. `kubectl apply -f deployment/postgres.yaml` - Set up a Postgres database running PostGIS
-4. `kubectl apply -f deployment/udaconnect-api.yaml` - Set up the service and deployment for the API
-5. `kubectl apply -f deployment/udaconnect-app.yaml` - Set up the service and deployment for the web app
-6. `sh scripts/run_db_command.sh <POD_NAME>` - Seed your database against the `postgres` pod. (`kubectl get pods` will give you the `POD_NAME`)
+4. `kubectl apply -f deployment/udaconnect-api-person.yaml` - Set up the service and deployment for the API
+5. `kubectl apply -f deployment/udaconnect-api-location.yaml` - Set up the service and deployment for the API
+6. `kubectl apply -f deployment/udaconnect-app.yaml` - Set up the service and deployment for the web app
+7. `kubectl apply -f deployment/mbzookeeper.yaml` - Set up a Zookeeper for Kafka
+7. `kubectl apply -f deployment/mbkafka.yaml` - Set up a basic Kafka server
+8. `sh scripts/run_db_command.sh <POD_NAME>` - Seed your database against the `postgres` pod. (`kubectl get pods` will give you the `POD_NAME`)
 
 Manually applying each of the individual `yaml` files is cumbersome but going through each step provides some context on the content of the starter project. In practice, we would have reduced the number of steps by running the command against a directory to apply of the contents: `kubectl apply -f deployment/`.
 
 Note: The first time you run this project, you will need to seed the database with dummy data. Use the command `sh scripts/run_db_command.sh <POD_NAME>` against the `postgres` pod. (`kubectl get pods` will give you the `POD_NAME`). Subsequent runs of `kubectl apply` for making changes to deployments or services shouldn't require you to seed the database again!
 
-### MB: GRPC & Kafka Implementation
-All GRPC & Kafka code is located in this folder: .modules\api-locations\app\grpc_package
-Endpoints are described by the Protobuf File: location.proto
-GRPC posts are forwarded to Kafka topic. A Kafka consumer persists new message in the Postgres DB 
+### GRPC Implementation
+All gRPC and Kafka-related code is located in:  
+`./modules/api-locations/app/grpc_package`
 
-### Swagger doc:
+- **Endpoints** are defined in the Protobuf file: `location.proto`.  
+- **gRPC POST requests** are forwarded to a Kafka topic.  
+- **Kafka Consumer** persists new messages into the PostgreSQL database.
 
-### docker compose
+### Swagger Documentation  
 
-  frontend:
-    build:
-      context: ./frontend2
-    ports:
-      - "3000:3000"
-    environment:
-      <<: *env_vars
-    networks:
-      - udaconnect_network
+Access the Swagger docs for the services:  
+
+- **Person API:** [http://localhost:30001/](http://localhost:30001/)  
+- **Location API:** [http://localhost:30002/](http://localhost:30002/) 
+
+### Locale development with docker
+Please goto folder "./modules". Herer you can finde a "docker-compose.yaml"
+You can start the Container env by: 
+1) Build images: docker-compose build --no-cache  
+2) Start Containers: docker-compose up   
+
+
       
 
 ### Verifying it Works

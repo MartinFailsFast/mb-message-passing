@@ -9,6 +9,9 @@ from app.udaconnect.schemas import ConnectionSchema, LocationSchema, PersonSchem
 from geoalchemy2.functions import ST_AsText, ST_Point
 from sqlalchemy.sql import text
 
+logging.basicConfig()
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("udaconnect-api")
 
@@ -130,6 +133,15 @@ class PersonService:
     @staticmethod
     def retrieve(person_id: int) -> Person:
         person = db.session.query(Person).get(person_id)
+        logging.debug(f"Person found: id={person.id}, first_name={person.first_name}, last_name={person.last_name}, company_name={person.company_name}")
+        return person
+    
+    @staticmethod
+    def retrieveNew(person_id: int) -> Person:
+        person = db.session.query(Person).filter_by(id=int(person_id)).first()
+        logging.debug(f"Person found: id={person.id}, first_name={person.first_name}, last_name={person.last_name}, company_name={person.company_name}")
+        if not person:
+            logging.debug(f"Person not found")
         return person
 
     @staticmethod

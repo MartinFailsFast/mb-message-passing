@@ -1,0 +1,17 @@
+GRPC manual:
+
+To send a gRPC POST message you can start Postman and
+1) Add a new request of type: gRPC
+2) Enter URL for Kubernetes Custer: localhost:30005
+3) Goto "Service definition" tab and import the location.proto file from the folder ".\modules\api-locations\app\grpc_package\"
+4) Goto "Select a method" input field on the top right and choose "CreateLocation"
+5) Goto "Message" tab and enter a sample request like this:
+{
+    "person_id": 3,
+    "longitude": "90.0522",
+    "latitude": "-129.2437",
+    "creation_time": "2025-03-21T14:30:00Z"
+}
+
+6) Send your messag with "invoke" button on the right
+7) The server will respond with your message if the request was excepted

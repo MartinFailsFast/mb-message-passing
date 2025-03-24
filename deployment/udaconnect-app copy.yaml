@@ -34,6 +34,17 @@ spec:
       - image: martinfailsfast/mbfrontend:latest
         name: udaconnect-app
         imagePullPolicy: Always
+        env:
+        - name: REACT_APP_FRONTEND_LOCATION_URL
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: REACT_APP_FRONTEND_LOCATION_URL
+        - name: FRONTEND_PERSON_URL
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: FRONTEND_PERSON_URL
         resources:
           requests:
             memory: "128Mi"

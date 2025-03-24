@@ -8,5 +8,7 @@ data:
   KAFKA_SERVER: kafka:9092
   PERSON_HOST: http://udaconnect-api-person:5001/api/persons
   LOCATION_HOST: http://udaconnect-api-location:5002/api/locations
+  Frontend_Person_URL: http://localhost:30001/api/persons
+  REACT_APP_FRONTEND_LOCATION_URL: http://localhost:30002/api/locations
 metadata:
-  name: db-en
+  name: db-env

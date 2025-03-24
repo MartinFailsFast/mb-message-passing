@@ -1,0 +1,231 @@
+{
+	"info": {
+		"_postman_id": "43cf77c9-9a52-4759-9dd8-c65a98157896",
+		"name": "UdaConnectMB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43005805"
+	},
+	"item": [
+		{
+			"name": "GetLocation",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}:{{locationPort}}/api/locations/6",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{locationPort}}",
+					"path": [
+						"api",
+						"locations",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PostNewLocation",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"person_id\": 4,\r\n    \"longitude\": \"66.12864919788544\",\r\n    \"latitude\": \"11.166434884071895\",\r\n    \"creation_time\": \"2025-03-21T18:00:00\"\r\n\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}:{{locationPort}}/api/locations",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{locationPort}}",
+					"path": [
+						"api",
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PostNewLocation<ID>",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 98,    \r\n    \"person_id\": 9,\r\n    \"longitude\": \"63.12864919788544\",\r\n    \"latitude\": \"9.166434884071895\",\r\n    \"creation_time\": \"2025-03-14T15:00:00\"\r\n\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}:{{locationPort}}/api/locations",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{locationPort}}",
+					"path": [
+						"api",
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PostNewPerson",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"first_name\": \"Erwin\",\r\n  \"last_name\": \"Book\",\r\n  \"company_name\": \"T-Systems\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}:{{personPort}}/api/persons",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{personPort}}",
+					"path": [
+						"api",
+						"persons"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetAllPersons",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}:{{personPort}}/api/persons",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{personPort}}",
+					"path": [
+						"api",
+						"persons"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetPerson",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}:{{personPort}}/api/persons/2",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{personPort}}",
+					"path": [
+						"api",
+						"persons",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetConnectionsLocationAPI",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}:{{locationPort}}/api/locations/5/connection?start_date=2020-01-01&end_date=2020-12-30&distance=5",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{locationPort}}",
+					"path": [
+						"api",
+						"locations",
+						"5",
+						"connection"
+					],
+					"query": [
+						{
+							"key": "start_date",
+							"value": "2020-01-01"
+						},
+						{
+							"key": "end_date",
+							"value": "2020-12-30"
+						},
+						{
+							"key": "distance",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetAllLocations",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}:{{locationPort}}/api/locations",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{locationPort}}",
+					"path": [
+						"api",
+						"locations"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

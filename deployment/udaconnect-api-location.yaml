@@ -35,7 +35,7 @@ spec:
         service: udaconnect-api-location
     spec:
       containers:
-      - image: martinfailsfast/api-person:latest
+      - image: martinfailsfast/api-location:latest
         name: udaconnect-api-location
         imagePullPolicy: Always
         env:
@@ -64,4 +64,14 @@ spec:
             configMapKeyRef:
               name: db-env
               key: DB_PORT
+        - name: PERSON_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: PERSON_HOST
+        - name: KAFKA_SERVER
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: KAFKA_SERVER
       restartPolicy: Always

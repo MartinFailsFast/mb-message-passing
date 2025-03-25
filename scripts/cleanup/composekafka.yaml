@@ -11,37 +11,25 @@ x-env-vars: &env_vars
 networks:
   udaconnect_network:
     driver: bridge
-volumes:
-  kafka-data:
-
-version: '3.8'
 
 services:
   kafka:
-    image: bitnami/kafka:latest
+    image: apache/kafka:4.0.0
+    container_name: kafka
     environment:
-      - KAFKA_BROKER_ID=1
-      - KAFKA_CLUSTER_ID=my-cluster-id  # Set a unique cluster ID
-      - KAFKA_CFG_PROCESS_ROLES=broker,controller  # Broker and controller roles
-      - KAFKA_CFG_NODE_ID=1  # Node ID
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092  # Configure the listener
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092  # Advertised listener address
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL=PLAINTEXT  # Plaintext communication
-      - KAFKA_KRAFT_MODE=true  # Enabling KRaft mode (removes the need for Zookeeper)
-      - KAFKA_CFG_LOG_DIRS=/bitnami/kafka/data  # Log directory
-      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=PLAINTEXT  # Define the controller listener
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9092  # Quorum voters (single node in this case)
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT  # Map the security protocol to the listener
-    volumes:
-      - /path/to/kafka/data:/bitnami/kafka/data  # Set the data directory
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER  
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
-      - "9092:9092"  # Expose Kafka port
+      - "9092:9092"
     networks:
       - udaconnect_network
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "9092"]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 10s
+    volumes:
+      - ./kafka-data:/tmp/kraft-combined-logs
 

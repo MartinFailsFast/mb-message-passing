@@ -7,7 +7,7 @@ x-env-vars: &env_vars
   KAFKA_SERVER: kafka:9092
   PERSON_HOST: http://api-person:5001/api/persons #http://localhost:5001/api/persons #http://modules-api-person-1:5001/api/persons
   LOCATION_HOST: http://api-locations:5002/api/locations #http://modules-api-locations-1:5002/api/locations
-  Frontend_Person_URL: http://localhost:5001/api/persons
+  FRONTEND_PERSON_URL: http://localhost:5001/api/persons
   REACT_APP_FRONTEND_LOCATION_URL: http://localhost:5002/api/locations
 networks:
   udaconnect_network:

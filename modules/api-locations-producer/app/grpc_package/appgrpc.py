@@ -3,7 +3,7 @@ from concurrent import futures
 import time
 #from grpc_package import location_pb2, location_pb2_grpc
 from . import location_pb2, location_pb2_grpc
-from .kafka_handler import send_location_to_kafka, consume_location_from_kafka, check_or_create_topic, locations, is_kafka_ready
+from app.kafka_Producer import send_location_to_kafka,locations, is_kafka_ready, check_or_create_topic
 import json
 import logging
 import threading
@@ -11,6 +11,7 @@ import threading
 # Create a dictionary to store locations
 #locations = {}
 logging.basicConfig(level=logging.DEBUG)
+logging.getLogger('kafka').setLevel(logging.WARNING) 
 logger = logging.getLogger("udaconnect-srv")
 
 class LocationService(location_pb2_grpc.LocationServiceServicer):
@@ -20,7 +21,7 @@ class LocationService(location_pb2_grpc.LocationServiceServicer):
     # Implement the CreateLocation RPC method
     def CreateLocation(self, request, context):
         location_data = request
-        logging.debug(f"Location data received: {request}")
+        logging.debug(f"GRPC location data received: {request}")
 
         # Convert the location to JSON or string and send it to Kafka    
         location_data = {
@@ -31,7 +32,6 @@ class LocationService(location_pb2_grpc.LocationServiceServicer):
         }
         # Store the location in the dictionary
         locations[request.id] = location_data
-        logging.debug(f"Location data transformed: {location_data}")
         
         send_location_to_kafka(location_data)
         
@@ -81,17 +81,18 @@ def serve():
     '''    
     '''
     # Wait for Kafka to be ready
-    while not is_kafka_ready():
+    while not check_or_create_topic():
         logging.debug("Wait for Kafka to be ready...")
-        time.sleep(20)  # Wait for 5 seconds before retrying
+        time.sleep(10)  
 
 
+    '''
     # Consume messages from Kafka in a separate thread
     kafka_thread = threading.Thread(target=consume_location_from_kafka)
     kafka_thread.daemon = True  # Ensure the thread doesn't block the application exit
     kafka_thread.start()
     logger.info("Kafka consumer thread started")
-
+    '''
 
     try:
         while True:

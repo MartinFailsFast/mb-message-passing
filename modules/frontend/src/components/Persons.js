@@ -4,9 +4,12 @@ import Connection from "./Connection";
 class Persons extends Component {
   constructor(props) {
     super(props);
+
     // Endpoint via config variable
-    this.endpoint_url = process.env.FRONTEND_PERSON_URL;
-    console.log("Person_HOST URL:", this.endpoint_url); // Zeigt die URL in der Konsole an
+    //this.endpoint_url = process.env.REACT_APP_FRONTEND_PERSON_URL;
+    //http://localhost:30001/api/persons
+    this.endpoint_url = "http://localhost:30001/api/persons"; 
+    //console.log("Person_HOST URL:", this.endpoint_url); // Zeigt die URL in der Konsole an
     this.state = {
       persons: [],
       display: null,

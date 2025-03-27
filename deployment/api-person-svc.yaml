@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: udaconnect-api-person
+  name: udaconnect-api-person
+spec:
+  ports:
+  - name: "5001"
+    port: 5001
+    targetPort: 5001
+    nodePort: 30001
+  selector:
+    service: udaconnect-api-person
+  type: NodePort

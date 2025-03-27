@@ -73,7 +73,6 @@ def is_kafka_ready():
 
 # Create a Kafka producer to send location data
 def create_producer():
-    check_or_create_topic()
     return KafkaProducer(
         bootstrap_servers=KAFKA_SERVER,
         value_serializer=lambda v: json.dumps(v).encode('utf-8')  # Serialize messages as JSON
@@ -94,7 +93,7 @@ def send_location_to_kafka(location_data):
     try:
         producer.send(TOPIC_NAME, location_data)
         producer.flush()  # Ensure the message is sent before returning
-        logging.debug(f"Produced message: {location_data}")
+        logging.debug(f"Kafka message produced: {location_data}")
     except BaseException as e:
         logging.error(f"Error producing message: {e}")
 
@@ -207,6 +206,31 @@ def consume_location_from_kafkanew():
 
 
 # Create Kafka AdminClient to check or create topics
+def check_or_create_topicOld():
+    try:
+        admin_client = KafkaAdminClient(
+            bootstrap_servers=KAFKA_SERVER,
+            client_id='location_service_admin'
+        )
+
+
+        existing_topics = admin_client.list_topics()
+        if TOPIC_NAME not in existing_topics:
+            logging.debug(f"Creating topic '{TOPIC_NAME}'...")
+            topic = NewTopic(name=TOPIC_NAME, num_partitions=1, replication_factor=1)
+            admin_client.create_topics(new_topics=[topic])
+            logging.debug(f"Topic '{TOPIC_NAME}' created successfully on {KAFKA_SERVER}")
+        else:
+            logging.debug(f"Topic '{TOPIC_NAME}' already exists on {KAFKA_SERVER}")
+        
+        return True
+    except NoBrokersAvailable:
+        logging.warning("Kafka is not available yet. Retrying...")
+        return False
+    except KafkaError as e:
+        logging.debug(f"Warning: Kafka error occurred: {e}. Retrying...")
+        return False
+    
 def check_or_create_topic():
     try:
         admin_client = KafkaAdminClient(
@@ -214,17 +238,25 @@ def check_or_create_topic():
             client_id='location_service_admin'
         )
 
-        existing_topics = admin_client.list_topics()
+        # Get existing topics as a set
+        existing_topics = set(admin_client.list_topics())
         if TOPIC_NAME not in existing_topics:
-            logging.debug(f"Creating topic '{TOPIC_NAME}'...")
+            logging.debug(f"Creating topic '{TOPIC_NAME}' on {KAFKA_SERVER}")
             topic = NewTopic(name=TOPIC_NAME, num_partitions=1, replication_factor=1)
-            admin_client.create_topics(new_topics=[topic])
-            logging.debug(f"Topic '{TOPIC_NAME}' created successfully.")
+            try:
+                admin_client.create_topics(new_topics=[topic])
+                logging.debug(f"Topic '{TOPIC_NAME}' created successfully.")
+            except KafkaError as e:
+                logging.error(f"Error creating topic '{TOPIC_NAME}': {e}")
+                return False
         else:
-            logging.debug(f"Topic '{TOPIC_NAME}' already exists.")
-    
+            logging.debug(f"Topic '{TOPIC_NAME}' already exists on {KAFKA_SERVER}")
+        
+        logging.debug("Kafka Producer connection successful.")
+        return True
     except NoBrokersAvailable:
-        logging.debug("Warning: Kafka broker not available. Continuing without Kafka.")
-    
+        logging.warning("Kafka is not available yet. Retrying...")
+        return False
     except KafkaError as e:
-        logging.debug(f"Warning: Kafka error occurred: {e}. Continuing without Kafka.")
+        logging.error(f"Kafka error occurred: {e}. Retrying...")
+        return False

@@ -20,11 +20,15 @@ class Connection extends Component {
 
   getConnections = (personId) => {
     if (personId) {
+
       // Endpoint via config variable
       const apiUrl = `${process.env.REACT_APP_FRONTEND_LOCATION_URL}/${personId}/connection?start_date=2020-01-01&end_date=2050-12-30&distance=5`;
       console.log("Frontend_Location_URL:", apiUrl); // Zeigt die URL in der Konsole an
+      //`http://localhost:5002/api/locations/${personId}/connection?start_date=2020-01-01&end_date=2050-12-30&distance=5`
+      //apiUrl
       fetch(
-        apiUrl
+        `http://localhost:30002/api/locations/${personId}/connection?start_date=2020-01-01&end_date=2050-12-30&distance=5`
+       
       )
         .then((response) => response.json())
         .then((connections) =>

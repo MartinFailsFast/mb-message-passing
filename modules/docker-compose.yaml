@@ -6,9 +6,7 @@ x-env-vars: &env_vars
   DB_PORT: 5432
   KAFKA_SERVER: kafka:9092
   PERSON_HOST: http://api-person:5001/api/persons #http://localhost:5001/api/persons #http://modules-api-person-1:5001/api/persons
-  LOCATION_HOST: http://api-locations:5002/api/locations #http://modules-api-locations-1:5002/api/locations
-  FRONTEND_PERSON_URL: http://localhost:5001/api/persons
-  REACT_APP_FRONTEND_LOCATION_URL: http://localhost:5002/api/locations
+  LOCATION_HOST: http://api-locations-producer:5002/api/locations #http://modules-api-locations-1:5002/api/locations
 networks:
   udaconnect_network:
     driver: bridge
@@ -36,10 +34,9 @@ services:
       - udaconnect_network
     volumes:
         - kafka_data:/var/lib/kafka/data
- 
-  api-locations:
+  api-locations-producer:
     build:
-      context: ./api-locations
+      context: ./api-locations-producer
     ports:
       - "5005:5005"
       - "5002:5002"
@@ -59,21 +56,16 @@ services:
       <<: *env_vars
     networks:
       - udaconnect_network
-  
-  frontend:
+      
+  locations-consumer:
     build:
-      context: ./frontend
-    ports:
-      - "3000:3000"
+      context: ./locations-consumer
     depends_on:
-      - api-person
-    stdin_open: true
-    tty: true
+      - kafka
     environment:
       <<: *env_vars
     networks:
       - udaconnect_network
-
 
 
 

@@ -1,0 +1,12 @@
+# Kafka consumer and producer
+kafka-python==2.0.2
+# PostgreSQL adapter for Python
+psycopg2==2.9.3
+# SQLAlchemy for database interaction
+sqlalchemy==1.4.32
+# Geoalchemy2 for working with PostGIS geometries (optional if you're using geospatial data)
+geoalchemy2==0.8.3
+# Shapely for geometric operations (optional)
+shapely==1.8.1
+# Requests for making HTTP calls (optional, in case needed)
+requests==2.27.1

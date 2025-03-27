@@ -2,15 +2,17 @@ x-env-vars: &env_vars
   DB_USERNAME: ct_admin
   DB_PASSWORD: hotdogsfordinner
   DB_NAME: geoconnections
-  DB_HOST: postgres #host.docker.internal
+  DB_HOST: host.docker.internal
   DB_PORT: 5432
   KAFKA_SERVER: kafka:9092
   PERSON_HOST: http://api-person:5001/api/persons #http://localhost:5001/api/persons #http://modules-api-person-1:5001/api/persons
-  LOCATION_HOST: http://api-locations:5002/api/locations #http://modules-api-locations-1:5002/api/locations
-
+  LOCATION_HOST: http://api-locations-producer:5002/api/locations #http://modules-api-locations-1:5002/api/locations
 networks:
   udaconnect_network:
     driver: bridge
+
+volumes:
+  kafka_data:
 
 services:
   kafka:
@@ -20,16 +22,43 @@ services:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092 # PLAINTEXT://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER  
-      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
       - "9092:9092"
     networks:
       - udaconnect_network
     volumes:
-      - ./kafka-data:/tmp/kraft-combined-logs
+        - kafka_data:/var/lib/kafka/data
+ 
+  api-locations-producer:
+    build:
+      context: ./api-locations-producer
+    ports:
+      - "5005:5005"
+      - "5002:5002"
+    depends_on:
+      - kafka
+    environment:
+      <<: *env_vars
+    networks:
+      - udaconnect_network
+  
+  api-person:
+    build:
+      context: ./api-person
+    ports:
+      - "5001:5001"
+    environment:
+      <<: *env_vars
+    networks:
+      - udaconnect_network
 
+
+
+
+  

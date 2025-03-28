@@ -10,12 +10,6 @@ COPY requirements.txt requirements.txt
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-ENV DB_USERNAME="ct_admin"
-ENV DB_PASSWORD="hotdogsfordinner"
-ENV DB_NAME="geoconnections"
-ENV DB_HOST="host.docker.internal"
-ENV DB_PORT="5432"
-ENV KAFKA_SERVER="kafka:9092"
 
 COPY . /app
 

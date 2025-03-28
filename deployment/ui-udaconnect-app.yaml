@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: ui-udaconnect-app
+  name: ui-udaconnect-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: ui-udaconnect-app
+  template:
+    metadata:
+      labels:
+        service: ui-udaconnect-app
+    spec:
+      containers:
+      - image: martinfailsfast/ui-udaconnect-app:latest
+        name: ui-udaconnect-app
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "64m"
+          limits:
+            memory: "256Mi"
+            cpu: "256m"
+
+      restartPolicy: Always

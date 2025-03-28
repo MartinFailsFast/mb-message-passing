@@ -3,7 +3,7 @@ from concurrent import futures
 import time
 #from grpc_package import location_pb2, location_pb2_grpc
 from . import location_pb2, location_pb2_grpc
-from app.kafka_Producer import send_location_to_kafka,locations, is_kafka_ready, check_or_create_topic
+from app.kafka_Producer import send_location_to_kafka,locations, check_or_create_topic
 import json
 import logging
 import threading
@@ -77,33 +77,17 @@ def serve():
     server.add_insecure_port('[::]:5005')
     server.start()
     logging.debug("gRPC server started on port 5005.")
- 
-    '''    
-    '''
+
     # Wait for Kafka to be ready
     while not check_or_create_topic():
         logging.debug("Wait for Kafka to be ready...")
         time.sleep(10)  
-
-
-    '''
-    # Consume messages from Kafka in a separate thread
-    kafka_thread = threading.Thread(target=consume_location_from_kafka)
-    kafka_thread.daemon = True  # Ensure the thread doesn't block the application exit
-    kafka_thread.start()
-    logger.info("Kafka consumer thread started")
-    '''
 
     try:
         while True:
             time.sleep(86400)  # Keep the server running
     except KeyboardInterrupt:
         server.stop(0)
-
-
-
- 
-
 
 
 if __name__ == '__main__':

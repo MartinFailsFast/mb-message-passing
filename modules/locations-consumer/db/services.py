@@ -1,11 +1,6 @@
-import json
 import logging
-import threading
-import time
-from sqlalchemy.orm import Session
 from db.db_setup import SessionLocal
 from db.models import Location
-from geoalchemy2.functions import ST_Point
 from datetime import datetime
 from config import Config
 from geoalchemy2.elements import WKTElement

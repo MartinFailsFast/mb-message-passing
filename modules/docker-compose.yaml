@@ -5,8 +5,11 @@ x-env-vars: &env_vars
   DB_HOST: host.docker.internal
   DB_PORT: 5432
   KAFKA_SERVER: kafka:9092
+  KAFKA_TOPIC: location-topic
+  KAFKA_CONSUMER_GROUP: location-consumer-group     
   PERSON_HOST: http://api-person:5001/api/persons #http://localhost:5001/api/persons #http://modules-api-person-1:5001/api/persons
   LOCATION_HOST: http://api-locations-producer:5002/api/locations #http://modules-api-locations-1:5002/api/locations
+  
 networks:
   udaconnect_network:
     driver: bridge
@@ -67,6 +70,16 @@ services:
     networks:
       - udaconnect_network
 
-
+  ui-udaconnect-app:
+    build:
+      context: ./ui-udaconnect-app
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+    environment:
+      <<: *env_vars
+    networks:
+      - udaconnect_network
 
   

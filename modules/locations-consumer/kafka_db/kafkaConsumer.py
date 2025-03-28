@@ -4,11 +4,9 @@ import threading
 import time
 from kafka import KafkaConsumer
 from kafka.errors import KafkaError
-from sqlalchemy.orm import Session
 from db.db_setup import SessionLocal
 from db.models import Location
 from db.services import save_location_to_db
-from geoalchemy2.functions import ST_Point
 from datetime import datetime
 from config import Config
 from geoalchemy2.elements import WKTElement
@@ -35,16 +33,6 @@ def connect_kafka_with_retry(max_retries=Config.MAX_RETRIES, initial_delay=Confi
             logger.debug(f"Auto offset reset: earliest")
             
             consumer = create_consumer()
-            '''
-            KafkaConsumer(
-                Config.KAFKA_TOPIC,
-                bootstrap_servers=Config.KAFKA_SERVER,
-                group_id=Config.KAFKA_CONSUMER_GROUP,
-                value_deserializer=lambda x: json.loads(x.decode("utf-8")),
-                auto_offset_reset="earliest"
-            )
-            '''
-
             
             logger.info("Consumer connected to Kafka successfully.")
             return consumer

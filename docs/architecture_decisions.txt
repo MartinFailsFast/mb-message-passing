@@ -1,11 +1,13 @@
-# The APP microservice will be split into two independently deployable microservices:
+# The APP microservices will be split into 4 independently deployable microservices:
+
 1) API-Person Microservice — Handles all person-related data, backed by a database connected to the persons table.
 The Uda Connect Frontend fetches person information via REST GET requests to this microservice.
-2) API-Location Microservice — Manages location data, backed by a database connected to the location table.
-The Uda Connect Frontend retrieves location information through REST GET requests to this service.
-Each Microservice has its own database table and could be migrated separatly to a new DB if necessary.
 
-# New Location Data Flow:
-- New locations are sent using a gRPC call
-- These gRPC posts are published asynchron to a Kafka topic.
-- A Kafka consumer processes messages from the topic and saves each new location entry into the location table in the database.
+2) API-Locations-Producer Microservice — Manages location data, backed by a database connected to the location table.
+- Person data is requested via rest call to the API-Person Microservice and processed in the find_contacts method
+- The Uda Connect Frontend retrieves location information through REST GET requests to this service.
+- New locations are sent using a gRPC call. These gRPC posts are published to a Kafka topic.
+
+3) locations-consumer Microservice — Consumes location messages from the Kafka topic and persist the messages in the database
+
+4) The Uda Connect Frontend provides the customer UI 

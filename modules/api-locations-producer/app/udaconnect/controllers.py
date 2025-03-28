@@ -14,15 +14,12 @@ import logging
 
 
 DATE_FORMAT = "%Y-%m-%d"
-#DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 api = Namespace("UdaConnect", description="Connections via geolocation.")  # noqa
 
 
 
 # Get the logger for this specific class/module
-# logger = logging.getLogger(__name__)
-
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("udaconnect")
 

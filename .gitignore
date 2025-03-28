@@ -1,2 +1,3 @@
 # Ignore an entire folder
 # scripts/cleanup
+build_and_push.ps1

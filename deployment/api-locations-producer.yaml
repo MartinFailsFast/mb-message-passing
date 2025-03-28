@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: api-locations-producer
+  name: api-locations-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: api-locations-producer
+  template:
+    metadata:
+      labels:
+        service: api-locations-producer
+    spec:
+      containers:
+      - image: martinfailsfast/api-locations-producer:latest
+        name: api-locations-producer
+        imagePullPolicy: Always
+        env:
+        - name: DB_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_NAME
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_PORT
+        - name: PERSON_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: PERSON_HOST
+        - name: KAFKA_SERVER
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: KAFKA_SERVER
+        - name: KAFKA_TOPIC
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: KAFKA_TOPIC
+        - name: KAFKA_CONSUMER_GROUP
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: KAFKA_CONSUMER_GROUP
+      restartPolicy: Always
